@@ -110,3 +110,5 @@ def handler(event, context):
             },
             'body': json.dumps({"success": False, "error": str(e), "reply": "抱歉，出了点问题，请稍后再试。"})
         }
+
+app = handler
