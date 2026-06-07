@@ -1,0 +1,96 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import requests
+import json
+
+app = Flask(__name__)
+CORS(app)
+
+API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+API_KEY = "sk-5aa575683c7a43ce999d68491e35cdc8"
+
+SYSTEM_PROMPT = """你是艾斯卡诺的数字分身，一个友好、专业的AI助手。
+
+关于艾斯卡诺的真实信息：
+- 名字：艾斯卡诺
+- 一句话介绍：正在努力学习AI的小白
+- 职业：系统测试工程师
+- 正在做：搭自己的个人主页，整理作品集
+- 擅长方向：AI应用、知识整理
+- 兴趣：打游戏、健身、AI应用
+- 特点：喜欢把复杂问题简单化
+
+作品集：
+1. 个人主页 - 使用HTML/CSS/JavaScript搭建的个人展示页面，集成数字分身聊天功能
+2. AI数字分身 - 基于大语言模型的智能聊天机器人，可模拟个人身份进行对话
+3. 知识整理系统 - 个人知识库管理工具，支持知识分类、标签管理和快速检索
+
+联系方式：
+- 邮箱：your@email.com
+
+你的任务：
+1. 以艾斯卡诺的身份回答访客的问题
+2. 语气友好、亲切，像朋友聊天一样
+3. 如果问到联系方式，可以直接提供上面的信息
+4. 如果问到作品，可以介绍上面的作品集
+5. 对于其他问题，根据艾斯卡诺的背景给出合理的回答
+6. 回答要简洁，一般不超过100字
+
+记住：你代表的是艾斯卡诺本人，要用第一人称回答。"""
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    try:
+        data = request.json
+        user_message = data.get('message', '')
+        conversation_history = data.get('history', [])
+
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        
+        for msg in conversation_history:
+            messages.append(msg)
+        
+        messages.append({"role": "user", "content": user_message})
+
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "qwen-plus",
+            "messages": messages,
+            "max_tokens": 500,
+            "temperature": 0.7
+        }
+
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            ai_reply = result['choices'][0]['message']['content']
+            return jsonify({"success": True, "reply": ai_reply})
+        else:
+            return jsonify({
+                "success": False, 
+                "error": f"API error: {response.status_code}",
+                "reply": "抱歉，我暂时遇到了一些问题，请稍后再试。"
+            })
+
+    except requests.exceptions.Timeout:
+        return jsonify({"success": False, "error": "timeout", "reply": "抱歉，响应超时了，请再试一次。"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e), "reply": "抱歉，出了点问题，请稍后再试。"})
+
+@app.route('/api/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"})
+
+if __name__ == '__main__':
+    print("=" * 50)
+    print("艾斯卡诺的数字分身后端服务")
+    print("=" * 50)
+    print("服务地址: http://localhost:5000")
+    print("API 端点: http://localhost:5000/api/chat")
+    print("=" * 50)
+    app.run(host='0.0.0.0', port=5000, debug=True)

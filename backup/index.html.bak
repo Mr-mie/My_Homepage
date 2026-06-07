@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾斯卡诺 - 个人主页</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #5CA8F5;
+            --accent: #2D5F8B;
+            --bg: #F5F9FC;
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(74, 144, 226, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 48px;
+            color: white;
+            font-weight: bold;
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .name {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .info-item {
+            background: var(--bg);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: var(--text-main);
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(92, 168, 245, 0.1));
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .tag:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.2), rgba(92, 168, 245, 0.2));
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.ai {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-bubble {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-radius: 16px 16px 4px 16px;
+        }
+
+        .message.ai .message-bubble {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 16px 16px 16px 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #E8F0F8;
+            border-radius: 24px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+        }
+
+        .chat-input::placeholder {
+            color: #B0C4DE;
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .quick-btn {
+            background: var(--card-bg);
+            border: 1px solid #E8F0F8;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: var(--bg);
+            padding: 24px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .project-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .project-tag {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--bg);
+            border-radius: 24px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .contact-icon {
+            font-size: 18px;
+        }
+
+        .contact-text {
+            font-size: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+
+            header {
+                padding: 30px 0 16px;
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .name {
+                font-size: 26px;
+            }
+
+            .tagline {
+                font-size: 16px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .chat-container {
+                height: 350px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="avatar">艾</div>
+            <h1 class="name">艾斯卡诺</h1>
+            <p class="tagline">正在努力学习AI的小白</p>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">关于我</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">职业</div>
+                    <div class="info-value">系统测试工程师</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">正在做</div>
+                    <div class="info-value">搭自己的个人主页，整理作品集</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">擅长方向</div>
+                    <div class="info-value">AI应用、知识整理</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">记忆点</div>
+                    <div class="info-value">喜欢把复杂问题简单化</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">我的兴趣</h2>
+            <div class="tags">
+                <span class="tag">打游戏</span>
+                <span class="tag">健身</span>
+                <span class="tag">AI应用</span>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">作品集</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-icon">💻</div>
+                    <h3 class="project-title">个人主页</h3>
+                    <p class="project-desc">使用 HTML/CSS/JavaScript 搭建的个人展示页面，集成数字分身聊天功能</p>
+                    <div class="project-tags">
+                        <span class="project-tag">前端开发</span>
+                        <span class="project-tag">AI集成</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-icon">🤖</div>
+                    <h3 class="project-title">AI数字分身</h3>
+                    <p class="project-desc">基于大语言模型的智能聊天机器人，可模拟个人身份进行对话</p>
+                    <div class="project-tags">
+                        <span class="project-tag">后端开发</span>
+                        <span class="project-tag">LLM</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-icon">📊</div>
+                    <h3 class="project-title">知识整理系统</h3>
+                    <p class="project-desc">个人知识库管理工具，支持知识分类、标签管理和快速检索</p>
+                    <div class="project-tags">
+                        <span class="project-tag">全栈开发</span>
+                        <span class="project-tag">数据管理</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">联系方式</h2>
+            <div class="contact-links">
+                <a href="mailto:1943311505@qq.com" class="contact-item">
+                    <span class="contact-icon">📧</span>
+                    <span class="contact-text">1943311505@qq.com</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">和我的数字分身聊聊</h2>
+            <div class="quick-questions">
+                <button class="quick-btn" onclick="sendQuickMessage('你现在在做什么？')">你现在在做什么？</button>
+                <button class="quick-btn" onclick="sendQuickMessage('你有哪些作品？')">你有哪些作品？</button>
+                <button class="quick-btn" onclick="sendQuickMessage('怎么联系你？')">怎么联系你？</button>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="输入问题，回车发送..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2026 艾斯卡诺 · 简约 · 清爽 · 科技感</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/chat';
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        let conversationHistory = [];
+
+        function initChat() {
+            addMessage('ai', '你好！我是艾斯卡诺的数字分身 👋\n\n欢迎来和我聊天！你可以问我一些关于艾斯卡诺的问题，比如：\n• 你现在在做什么？\n• 你有哪些作品？\n• 怎么联系你？\n\n或者直接点击下面的快捷问题按钮~');
+        }
+
+        function addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            if (type === 'ai') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">艾</div>
+                    <div class="message-bubble">${content.replace(/\n/g, '<br>')}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `<div class="message-bubble">${content}</div>`;
+            }
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'message ai';
+            indicator.id = 'typingIndicator';
+            indicator.innerHTML = `
+                <div class="message-avatar">艾</div>
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            chatMessages.appendChild(indicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            chatInput.value = '';
+
+            conversationHistory.push({ role: 'user', content: message });
+
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory.slice(0, -1)
+                    })
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                if (data.success) {
+                    addMessage('ai', data.reply);
+                    conversationHistory.push({ role: 'assistant', content: data.reply });
+                } else {
+                    addMessage('ai', data.reply || '抱歉，出了点问题，请稍后再试。');
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('ai', '抱歉，无法连接到服务器。请确保后端服务已启动（运行 python server.py）');
+                console.error('Chat error:', error);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            chatInput.value = message;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        initChat();
+    </script>
+</body>
+</html>
