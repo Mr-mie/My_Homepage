@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/chat",
-      "methods": ["POST"],
+      "methods": ["POST", "OPTIONS"],
       "dest": "api/index.py"
     },
     {
