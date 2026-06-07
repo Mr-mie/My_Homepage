@@ -1,11 +1,6 @@
-from flask import Flask, request, jsonify
 import os
+import json
 import requests
-
-app = Flask(__name__)
-
-API_URL = os.environ.get("DASHSCOPE_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
-API_KEY = os.environ.get("DASHSCOPE_API_KEY", "")
 
 SYSTEM_PROMPT = """你是艾斯卡诺的数字分身，访客可以通过你和艾斯卡诺交流。
 
@@ -42,22 +37,24 @@ SYSTEM_PROMPT = """你是艾斯卡诺的数字分身，访客可以通过你和�
 
 记住：你是我的分身，我没说过的，你就不知道。"""
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
+def handler(event, context):
     try:
-        data = request.json
+        data = json.loads(event['body'])
         user_message = data.get('message', '')
         conversation_history = data.get('history', [])
 
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-
+        
         for msg in conversation_history:
             messages.append(msg)
-
+        
         messages.append({"role": "user", "content": user_message})
 
+        api_url = os.environ.get("DASHSCOPE_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+        api_key = os.environ.get("DASHSCOPE_API_KEY", "")
+
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
 
@@ -68,26 +65,48 @@ def chat():
             "temperature": 0.7
         }
 
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
-
+        response = requests.post(api_url, headers=headers, json=payload, timeout=30)
+        
         if response.status_code == 200:
             result = response.json()
             ai_reply = result['choices'][0]['message']['content']
-            return jsonify({"success": True, "reply": ai_reply})
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({"success": True, "reply": ai_reply})
+            }
         else:
-            return jsonify({
-                "success": False,
-                "error": f"API error: {response.status_code}",
-                "reply": "抱歉，我暂时遇到了一些问题，请稍后再试。"
-            })
+            return {
+                'statusCode': response.status_code,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    "success": False,
+                    "error": f"API error: {response.status_code}",
+                    "reply": "抱歉，我暂时遇到了一些问题，请稍后再试。"
+                })
+            }
 
     except requests.exceptions.Timeout:
-        return jsonify({"success": False, "error": "timeout", "reply": "抱歉，响应超时了，请再试一次。"})
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({"success": False, "error": "timeout", "reply": "抱歉，响应超时了，请再试一次。"})
+        }
     except Exception as e:
-        return jsonify({"success": False, "error": str(e), "reply": "抱歉，出了点问题，请稍后再试。"})
-
-@app.route('/api/health', methods=['GET'])
-def health():
-    return jsonify({"status": "ok"})
-
-app.run(host='0.0.0.0', port=5000)
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({"success": False, "error": str(e), "reply": "抱歉，出了点问题，请稍后再试。"})
+        }
